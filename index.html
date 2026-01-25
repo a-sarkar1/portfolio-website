@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapping NYC Streets Through Film Photography | Arnab Sarkar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            padding: 60px 20px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+        
+        .header .byline {
+            font-size: 1.1em;
+            color: #999;
+            margin-bottom: 15px;
+            font-weight: 300;
+        }
+        
+        .header .subtitle {
+            font-size: 1.1em;
+            color: #bbb;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .section {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid #2d2d2d;
+        }
+        
+        .section h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        .section p {
+            color: #bbb;
+            font-size: 1.05em;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        
+        .map-container {
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #2d2d2d;
+            margin-bottom: 30px;
+        }
+        
+        #map {
+            height: 700px;
+            width: 100%;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+        
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #4a9eff;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .label {
+            color: #999;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .instructions {
+            background: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #4a9eff;
+            margin-bottom: 20px;
+        }
+        
+        .instructions h3 {
+            color: #4a9eff;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+        }
+        
+        .instructions ul {
+            list-style: none;
+            color: #bbb;
+        }
+        
+        .instructions ul li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .instructions ul li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #4a9eff;
+        }
+        
+        .popup-content {
+            text-align: center;
+            min-width: 220px;
+        }
+        
+        .popup-content img {
+            width: 250px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        .popup-content h3 {
+            font-size: 0.95em;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .popup-content .info-grid {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 4px;
+            text-align: left;
+        }
+        
+        .popup-content .info-row {
+            font-size: 0.85em;
+            color: #666;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .popup-content .info-row strong {
+            color: #333;
+            min-width: 80px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .footer a {
+            color: #4a9eff;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .header .subtitle {
+                font-size: 1em;
+            }
+            
+            #map {
+                height: 500px;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Mapping NYC Streets Through Film Photography</h1>
+        <div class="byline">by Arnab Sarkar</div>
+        <div class="subtitle">Exploring New York City through analog photography and data visualization</div>
+    </div>
+
+    <div class="container">
+        <div class="stats">
+            <div class="stat-card">
+                <span class="number" id="total-photos">43</span>
+                <span class="label">Photographs</span>
+            </div>
+            <div class="stat-card">
+                <span class="number" id="neighborhoods">10</span>
+                <span class="label">Neighborhoods</span>
+            </div>
+            <div class="stat-card">
+                <span class="number" id="film-stocks">3</span>
+                <span class="label">Film Stocks</span>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>How to Explore the Map</h3>
+            <ul>
+                <li>Clusters show the number of photos in each area</li>
+                <li>Click a cluster to zoom in and reveal individual pins</li>
+                <li>Click individual pins to see photo details and images</li>
+                <li>Zoom out to see pins automatically group back into clusters</li>
+            </ul>
+        </div>
+
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+
+        <div class="section">
+            <h2>About This Project</h2>
+            <p>This interactive map visualizes my film photography practice across New York City. Each pin represents a photograph, with data including location, film stock, camera used, and shooting date.</p>
+            <p>The project demonstrates data collection, geospatial analysis, and interactive visualization techniques—combining my passion for analog photography with data analytics skills.</p>
+            <p><strong>Technical Details:</strong> Built with Leaflet.js for mapping, Marker Cluster for grouping, and CSV data processing. The map updates dynamically as new photographs are added to the dataset.</p>
+        </div>
+
+        <div class="section">
+            <h2>Data Methodology</h2>
+            <p><strong>Data Collection:</strong> Each photograph's metadata was manually cataloged, including precise GPS coordinates obtained through landmark identification and Google Maps verification.</p>
+            <p><strong>Coordinate Strategy:</strong> The map uses dual coordinate systems—neighborhood-level clustering coordinates and precise pin-level coordinates—to balance visual clarity with geographic accuracy.</p>
+            <p><strong>Ongoing Project:</strong> This is a living dataset that grows with each new roll of film. The visualization automatically updates as new data is added to the source spreadsheet.</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 Arnab Sarkar | <a href="arnab.sarkar@baruchmail.cuny.edu">Contact</a> | <a href="https://github.com/a-sarkar1/">GitHub</a> | <a href="https://www.linkedin.com/in/a-sarkar1/">LinkedIn</a></p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <script>
+        // Initialize map centered on NYC
+        const map = L.map('map').setView([40.7128, -73.9950], 12);
+
+        // Add dark tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors © CARTO',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Create marker cluster group
+        const markers = L.markerClusterGroup({
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: true,
+            maxClusterRadius: 60
+        });
+
+        // Load and parse CSV data
+        Papa.parse('photo-data.csv', {
+            download: true,
+            header: true,
+            complete: function(results) {
+                const data = results.data;
+                
+                // Update stats
+                const neighborhoods = new Set(data.filter(d => d.Location_Neighborhood).map(d => d.Location_Neighborhood));
+                const filmStocks = new Set(data.filter(d => d.Film_Stock).map(d => d.Film_Stock));
+                
+                document.getElementById('total-photos').textContent = data.filter(d => d.Pin_Lat && d.Pin_Lng).length;
+                document.getElementById('neighborhoods').textContent = neighborhoods.size;
+                document.getElementById('film-stocks').textContent = filmStocks.size;
+
+                // Add markers for each photo
+                data.forEach(photo => {
+                    if (!photo.Pin_Lat || !photo.Pin_Lng) return;
+                    
+                    const lat = parseFloat(photo.Pin_Lat);
+                    const lng = parseFloat(photo.Pin_Lng);
+                    
+                    if (isNaN(lat) || isNaN(lng)) return;
+                    
+                    const marker = L.marker([lat, lng]);
+                    
+                    // Create popup content
+                    const popupContent = `
+                        <div class="popup-content">
+                            <img src="photos/${photo.Filename}" 
+                                 alt="${photo.Filename}"
+                                 onerror="this.src='https://via.placeholder.com/250x200/2d2d2d/ffffff?text=Image+Not+Found'">
+                            <h3>${photo.Filename}</h3>
+                            <div class="info-grid">
+                                ${photo.Location_Neighborhood ? `<div class="info-row"><strong>Location:</strong><span>${photo.Location_Neighborhood}</span></div>` : ''}
+                                ${photo.Film_Stock ? `<div class="info-row"><strong>Film:</strong><span>${photo.Film_Stock}</span></div>` : ''}
+                                ${photo.Camera ? `<div class="info-row"><strong>Camera:</strong><span>${photo.Camera}</span></div>` : ''}
+                                ${photo.Date_Shot ? `<div class="info-row"><strong>Date:</strong><span>${photo.Date_Shot}</span></div>` : ''}
+                                ${photo.Roll ? `<div class="info-row"><strong>Roll:</strong><span>${photo.Roll}</span></div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    marker.bindPopup(popupContent, {
+                        maxWidth: 300,
+                        className: 'custom-popup'
+                    });
+                    
+                    markers.addLayer(marker);
+                });
+
+                // Add markers to map
+                map.addLayer(markers);
+            },
+            error: function(error) {
+                console.error('Error loading CSV:', error);
+                alert('Error loading photo data. Make sure photo-data.csv is in the same folder as index.html');
+            }
+        });
+    </script>
+</body>
+</html>
