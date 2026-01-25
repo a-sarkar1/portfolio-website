@@ -283,7 +283,7 @@
     </div>
 
     <div class="footer">
-        <p>© 2026 Arnab Sarkar | <a href="arnab.sarkar@baruchmail.cuny.edu">Contact</a> | <a href="https://github.com/a-sarkar1/">GitHub</a> | <a href="https://www.linkedin.com/in/a-sarkar1/">LinkedIn</a></p>
+        <p>© 2026 Arnab Sarkar | <a href="mailto:your.email@example.com">Contact</a> | <a href="https://github.com/yourusername">GitHub</a> | <a href="https://linkedin.com/in/yourprofile">LinkedIn</a></p>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
@@ -325,10 +325,10 @@
 
                 // Add markers for each photo
                 data.forEach(photo => {
-                    if (!photo.Pin_Lat || !photo.Pin_Lng) return;
+                    if (!photo.Pin_Lat || !photo.Pin_Long) return;
                     
                     const lat = parseFloat(photo.Pin_Lat);
-                    const lng = parseFloat(photo.Pin_Lng);
+                    const lng = parseFloat(photo.Pin_Long);
                     
                     if (isNaN(lat) || isNaN(lng)) return;
                     
@@ -347,6 +347,7 @@
                                 ${photo.Camera ? `<div class="info-row"><strong>Camera:</strong><span>${photo.Camera}</span></div>` : ''}
                                 ${photo.Date_Shot ? `<div class="info-row"><strong>Date:</strong><span>${photo.Date_Shot}</span></div>` : ''}
                                 ${photo.Roll ? `<div class="info-row"><strong>Roll:</strong><span>${photo.Roll}</span></div>` : ''}
+                                ${photo.Collection ? `<div class="info-row"><strong>Collection:</strong><span>${photo.Collection}</span></div>` : ''}
                             </div>
                         </div>
                     `;
