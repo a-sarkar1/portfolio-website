@@ -453,7 +453,7 @@
                 const neighborhoods = new Set(data.filter(d => d.Location_Neighborhood).map(d => d.Location_Neighborhood));
                 const filmStocks = new Set(data.filter(d => d.Film_Stock).map(d => d.Film_Stock));
                 
-                document.getElementById('total-photos').textContent = data.filter(d => d.Pin_Lat && d.Pin_Lng).length;
+                document.getElementById('total-photos').textContent = data.filter(d => d.Pin_Lat && d.Pin_Long).length;
                 document.getElementById('neighborhoods').textContent = neighborhoods.size;
                 document.getElementById('film-stocks').textContent = filmStocks.size;
 
@@ -716,3 +716,4 @@
     </script>
 </body>
 </html>
+
