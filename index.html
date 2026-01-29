@@ -345,22 +345,16 @@
         <div class="instructions">
             <h3>How to Explore the Map</h3>
             <ul>
-                <li>Clusters show the number of photos in each area</li>
+                <li>Each cluster shows the number of photos in an area.</li>
                 <li>Click a cluster to zoom in and reveal individual pins</li>
                 <li>Click individual pins to see photo details and images</li>
-                <li>Zoom out to see pins automatically group back into clusters</li>
+                <li>Zoom out of the map to see pins automatically group back into clusters</li>
             </ul>
         </div>
 
         <div class="map-container">
             <div id="map"></div>
         </div>
-
-        <div class="charts-section">
-            <div class="section">
-                <h2>Data Insights</h2>
-                <p>Analyzing patterns in my film photography practice across New York City.</p>
-            </div>
 
             <div class="charts-grid">
                 <div class="chart-container">
@@ -394,16 +388,18 @@
 
         <div class="section">
             <h2>About This Project</h2>
-            <p>This interactive map visualizes my film photography practice across New York City. Each pin represents a photograph, with data including location, film stock, camera used, and shooting date.</p>
-            <p>The project demonstrates data collection, geospatial analysis, and interactive visualization techniques—combining my passion for analog photography with data analytics skills.</p>
-            <p><strong>Technical Details:</strong> Built with Leaflet.js for mapping, Marker Cluster for grouping, and CSV data processing. The map updates dynamically as new photographs are added to the dataset.</p>
+            <p>I wanted to map out my photographic journey in NYC, so this will be a continuous project I will update as I take more photos!</p>
+            <p>Each pin represents the exact location at which I took a photo. Clicking a pin will allow you to view a few details about the picture, like what camera was used or when it was taken.</p>
+            <p>I wanted to combine my data analysis knowledge with my passion for film photography and I thought this would be a perfect joining of the two ideas.</p>
+            <p>My eventual goal with this project is to trace my photographic journey across NYC, capturing candid moments in time to showcase the city that I'm so proud to call my home :)</p>
+            
         </div>
 
         <div class="section">
             <h2>Data Methodology</h2>
+            <p><strong>Technical Details:</strong> Built with Leaflet.js for mapping, Marker Cluster for grouping, and CSV data processing. The map updates dynamically as new photographs are added to the dataset.</p>
             <p><strong>Data Collection:</strong> Each photograph's metadata was manually cataloged, including precise GPS coordinates obtained through landmark identification and Google Maps verification.</p>
             <p><strong>Coordinate Strategy:</strong> The map uses dual coordinate systems—neighborhood-level clustering coordinates and precise pin-level coordinates—to balance visual clarity with geographic accuracy.</p>
-            <p><strong>Ongoing Project:</strong> This is a living dataset that grows with each new roll of film. The visualization automatically updates as new data is added to the source spreadsheet.</p>
         </div>
     </div>
 
@@ -433,6 +429,8 @@
             maxClusterRadius: 60
         });
 
+        let densityMap;
+        let heatLayer;
         // Load and parse CSV data
         Papa.parse('photo-data.csv', {
             download: true,
@@ -666,30 +664,31 @@
         
         // 4. Geographic Density Heatmap
         function generateDensityMap(data) {
-            // Create a separate mini map for the density visualization
-            const densityMap = L.map('densityMap').setView([40.7128, -73.9950], 11);
-            
-            // Add dark tile layer
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '© OpenStreetMap contributors © CARTO',
-                maxZoom: 19
-            }).addTo(densityMap);
-            
-            // Prepare heatmap data: [lat, lng, intensity]
-            const heatData = data.map(photo => {
-                return [
-                    parseFloat(photo.Pin_Lat),
-                    parseFloat(photo.Pin_Long),
-                    1 // intensity - could be weighted by favorites or other factors
-                ];
-            });
-            
-            // Add heat layer
-            L.heatLayer(heatData, {
+            if (!densityMap) {
+                densityMap = L.map('densityMap').setView([40.7128, -73.9950], 11);
+        
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '© OpenStreetMap contributors © CARTO',
+                    maxZoom: 19
+                }).addTo(densityMap);
+            }
+        
+            const heatData = data
+                .map(d => [
+                    parseFloat(d.Pin_Lat),
+                    parseFloat(d.Pin_Long),
+                    1
+                ])
+                .filter(d => !isNaN(d[0]) && !isNaN(d[1]));
+        
+            if (heatLayer) {
+                densityMap.removeLayer(heatLayer);
+            }
+        
+            heatLayer = L.heatLayer(heatData, {
                 radius: 25,
                 blur: 35,
                 maxZoom: 13,
-                max: 3.0,
                 gradient: {
                     0.0: '#0d0887',
                     0.2: '#5302a3',
@@ -699,10 +698,11 @@
                     1.0: '#f48849'
                 }
             }).addTo(densityMap);
-            
-            // Fix map size after a brief delay
-            setTimeout(() => densityMap.invalidateSize(), 100);
-        }
+        
+            setTimeout(() => densityMap.invalidateSize(), 200);
+}
+
     </script>
 </body>
 </html>
+
