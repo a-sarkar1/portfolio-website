@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <style>
         * {
@@ -384,19 +385,9 @@
                 </div>
 
                 <div class="chart-container">
-                    <h3>Activity Heatmap</h3>
-                    <div class="heatmap-container">
-                        <div id="heatmap" class="heatmap"></div>
-                        <div class="heatmap-legend">
-                            <span>Less</span>
-                            <div class="heatmap-legend-cell" style="background: #0d1117;"></div>
-                            <div class="heatmap-legend-cell" style="background: #0e4429;"></div>
-                            <div class="heatmap-legend-cell" style="background: #006d32;"></div>
-                            <div class="heatmap-legend-cell" style="background: #26a641;"></div>
-                            <div class="heatmap-legend-cell" style="background: #39d353;"></div>
-                            <span>More</span>
-                        </div>
-                    </div>
+                    <h3>Geographic Density Heatmap</h3>
+                    <p style="color: #bbb; font-size: 0.9em; margin-bottom: 15px;">Heat layer showing concentration of photos across NYC. Warmer colors indicate more photos taken in that area.</p>
+                    <div id="densityMap" style="height: 400px; border-radius: 8px; overflow: hidden;"></div>
                 </div>
             </div>
         </div>
@@ -522,8 +513,8 @@
             // 3. Film Stock Comparison
             generateFilmStockChart(validData);
             
-            // 4. Activity Heatmap
-            generateHeatmap(validData);
+            // 4. Geographic Density Heatmap
+            generateDensityMap(validData);
         }
         
         // 1. Timeline Chart
@@ -673,51 +664,45 @@
             });
         }
         
-        // 4. Activity Heatmap (GitHub-style)
-        function generateHeatmap(data) {
-            const heatmapContainer = document.getElementById('heatmap');
-            const dateCounts = {};
+        // 4. Geographic Density Heatmap
+        function generateDensityMap(data) {
+            // Create a separate mini map for the density visualization
+            const densityMap = L.map('densityMap').setView([40.7128, -73.9950], 11);
             
-            // Count photos by date
-            data.forEach(photo => {
-                const date = new Date(photo.Date_Shot);
-                if (!isNaN(date)) {
-                    const dateStr = date.toISOString().split('T')[0];
-                    dateCounts[dateStr] = (dateCounts[dateStr] || 0) + 1;
-                }
+            // Add dark tile layer
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                maxZoom: 19
+            }).addTo(densityMap);
+            
+            // Prepare heatmap data: [lat, lng, intensity]
+            const heatData = data.map(photo => {
+                return [
+                    parseFloat(photo.Pin_Lat),
+                    parseFloat(photo.Pin_Long),
+                    1 // intensity - could be weighted by favorites or other factors
+                ];
             });
             
-            // Generate cells for past year (53 weeks)
-            const today = new Date();
-            const oneYearAgo = new Date(today);
-            oneYearAgo.setFullYear(today.getFullYear() - 1);
+            // Add heat layer
+            L.heatLayer(heatData, {
+                radius: 25,
+                blur: 35,
+                maxZoom: 13,
+                max: 3.0,
+                gradient: {
+                    0.0: '#0d0887',
+                    0.2: '#5302a3',
+                    0.4: '#8b0aa5',
+                    0.6: '#b83289',
+                    0.8: '#db5c68',
+                    1.0: '#f48849'
+                }
+            }).addTo(densityMap);
             
-            const cells = [];
-            let currentDate = new Date(oneYearAgo);
-            
-            // Start from the most recent Sunday
-            while (currentDate.getDay() !== 0) {
-                currentDate.setDate(currentDate.getDate() - 1);
-            }
-            
-            // Generate 371 cells (53 weeks * 7 days)
-            for (let i = 0; i < 371; i++) {
-                const dateStr = currentDate.toISOString().split('T')[0];
-                const count = dateCounts[dateStr] || 0;
-                
-                const cell = document.createElement('div');
-                cell.className = 'heatmap-cell';
-                cell.setAttribute('data-count', Math.min(count, 4));
-                cell.setAttribute('data-tooltip', `${dateStr}: ${count} photo${count !== 1 ? 's' : ''}`);
-                
-                cells.push(cell);
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-            
-            cells.forEach(cell => heatmapContainer.appendChild(cell));
+            // Fix map size after a brief delay
+            setTimeout(() => densityMap.invalidateSize(), 100);
         }
     </script>
 </body>
 </html>
-
-
