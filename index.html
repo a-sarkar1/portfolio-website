@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <style>
         * {
@@ -243,62 +242,58 @@
             height: 300px;
         }
         
-        .heatmap-container {
+        .heatmap-grid {
             overflow-x: auto;
-        }
-        
-        .heatmap {
-            display: grid;
-            grid-template-columns: repeat(53, 12px);
-            gap: 3px;
-            margin-top: 20px;
-        }
-        
-        .heatmap-cell {
-            width: 12px;
-            height: 12px;
-            background: #1a1a1a;
-            border: 1px solid #2d2d2d;
-            border-radius: 2px;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .heatmap-cell:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 4px;
-            white-space: nowrap;
-            font-size: 12px;
-            z-index: 100;
-        }
-        
-        .heatmap-cell[data-count="0"] { background: #0d1117; }
-        .heatmap-cell[data-count="1"] { background: #0e4429; }
-        .heatmap-cell[data-count="2"] { background: #006d32; }
-        .heatmap-cell[data-count="3"] { background: #26a641; }
-        .heatmap-cell[data-count="4"] { background: #39d353; }
-        
-        .heatmap-legend {
-            display: flex;
-            align-items: center;
-            gap: 5px;
             margin-top: 15px;
-            font-size: 0.85em;
-            color: #999;
         }
         
-        .heatmap-legend-cell {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
+        .heatmap-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.85em;
         }
+        
+        .heatmap-table th {
+            background: #2d2d2d;
+            color: #999;
+            padding: 10px;
+            text-align: left;
+            font-weight: 500;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+        }
+        
+        .heatmap-table td {
+            padding: 8px 12px;
+            text-align: center;
+            border: 1px solid #2d2d2d;
+        }
+        
+        .heatmap-table tr:hover {
+            background: #1a1a1a;
+        }
+        
+        .heatmap-table th:first-child,
+        .heatmap-table td:first-child {
+            position: sticky;
+            left: 0;
+            background: #1a1a1a;
+            text-align: left;
+            font-weight: 500;
+        }
+        
+        .heat-cell {
+            border-radius: 4px;
+            padding: 5px;
+            min-width: 30px;
+        }
+        
+        .heat-0 { background: #0d1117; color: #666; }
+        .heat-1 { background: #0e4429; color: #bbb; }
+        .heat-2 { background: #006d32; color: #fff; }
+        .heat-3 { background: #26a641; color: #fff; }
+        .heat-4 { background: #39d353; color: #000; }
         
         @media (max-width: 768px) {
             .header h1 {
@@ -356,6 +351,7 @@
             <div id="map"></div>
         </div>
 
+        <div class="charts-section">
             <div class="charts-grid">
                 <div class="chart-container">
                     <h3>Photography Timeline</h3>
@@ -379,9 +375,18 @@
                 </div>
 
                 <div class="chart-container">
-                    <h3>Geographic Density Heatmap</h3>
-                    <p style="color: #bbb; font-size: 0.9em; margin-bottom: 15px;">Heat layer showing concentration of photos across NYC. Warmer colors indicate more photos taken in that area.</p>
-                    <div id="densityMap" style="height: 400px; border-radius: 8px; overflow: hidden;"></div>
+                    <h3>Month × Neighborhood Heatmap</h3>
+                    <p style="color: #bbb; font-size: 0.9em; margin-bottom: 15px;">Shows which neighborhoods you photographed in each month. Darker green = more photos.</p>
+                    <div class="heatmap-grid">
+                        <table class="heatmap-table" id="monthNeighborhoodHeatmap">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -392,7 +397,6 @@
             <p>Each pin represents the exact location at which I took a photo. Clicking a pin will allow you to view a few details about the picture, like what camera was used or when it was taken.</p>
             <p>I wanted to combine my data analysis knowledge with my passion for film photography and I thought this would be a perfect joining of the two ideas.</p>
             <p>My eventual goal with this project is to trace my photographic journey across NYC, capturing candid moments in time to showcase the city that I'm so proud to call my home :)</p>
-            
         </div>
 
         <div class="section">
@@ -429,8 +433,6 @@
             maxClusterRadius: 60
         });
 
-        let densityMap;
-        let heatLayer;
         // Load and parse CSV data
         Papa.parse('photo-data.csv', {
             download: true,
@@ -511,8 +513,8 @@
             // 3. Film Stock Comparison
             generateFilmStockChart(validData);
             
-            // 4. Geographic Density Heatmap
-            generateDensityMap(validData);
+            // 4. Month × Neighborhood Heatmap
+            generateMonthNeighborhoodHeatmap(validData);
         }
         
         // 1. Timeline Chart
@@ -662,47 +664,77 @@
             });
         }
         
-        // 4. Geographic Density Heatmap
-        function generateDensityMap(data) {
-            if (!densityMap) {
-                densityMap = L.map('densityMap').setView([40.7128, -73.9950], 11);
-        
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '© OpenStreetMap contributors © CARTO',
-                    maxZoom: 19
-                }).addTo(densityMap);
-            }
-        
-            const heatData = data
-                .map(d => [
-                    parseFloat(d.Pin_Lat),
-                    parseFloat(d.Pin_Long),
-                    1
-                ])
-                .filter(d => !isNaN(d[0]) && !isNaN(d[1]));
-        
-            if (heatLayer) {
-                densityMap.removeLayer(heatLayer);
-            }
-        
-            heatLayer = L.heatLayer(heatData, {
-                radius: 25,
-                blur: 35,
-                maxZoom: 13,
-                gradient: {
-                    0.0: '#0d0887',
-                    0.2: '#5302a3',
-                    0.4: '#8b0aa5',
-                    0.6: '#b83289',
-                    0.8: '#db5c68',
-                    1.0: '#f48849'
+        // 4. Month × Neighborhood Heatmap
+        function generateMonthNeighborhoodHeatmap(data) {
+            const heatmapData = {};
+            const neighborhoods = new Set();
+            
+            // Build the data structure
+            data.forEach(photo => {
+                const date = new Date(photo.Date_Shot);
+                if (!isNaN(date) && photo.Location_Neighborhood) {
+                    const monthKey = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                    const neighborhood = photo.Location_Neighborhood;
+                    
+                    neighborhoods.add(neighborhood);
+                    
+                    if (!heatmapData[monthKey]) {
+                        heatmapData[monthKey] = {};
+                    }
+                    
+                    heatmapData[monthKey][neighborhood] = (heatmapData[monthKey][neighborhood] || 0) + 1;
                 }
-            }).addTo(densityMap);
-        
-            setTimeout(() => densityMap.invalidateSize(), 200);
-}
-
+            });
+            
+            const sortedNeighborhoods = Array.from(neighborhoods).sort();
+            const months = Object.keys(heatmapData).sort((a, b) => {
+                return new Date(a) - new Date(b);
+            });
+            
+            // Find max count for scaling
+            let maxCount = 0;
+            Object.values(heatmapData).forEach(monthData => {
+                Object.values(monthData).forEach(count => {
+                    maxCount = Math.max(maxCount, count);
+                });
+            });
+            
+            // Build the table
+            const table = document.getElementById('monthNeighborhoodHeatmap');
+            const thead = table.querySelector('thead tr');
+            const tbody = table.querySelector('tbody');
+            
+            // Add neighborhood headers
+            sortedNeighborhoods.forEach(neighborhood => {
+                const th = document.createElement('th');
+                th.textContent = neighborhood;
+                thead.appendChild(th);
+            });
+            
+            // Add data rows
+            months.forEach(month => {
+                const tr = document.createElement('tr');
+                
+                // Month label
+                const monthTd = document.createElement('td');
+                monthTd.textContent = month;
+                tr.appendChild(monthTd);
+                
+                // Neighborhood data
+                sortedNeighborhoods.forEach(neighborhood => {
+                    const count = heatmapData[month][neighborhood] || 0;
+                    const td = document.createElement('td');
+                    
+                    const intensity = Math.ceil((count / maxCount) * 4);
+                    td.className = `heat-cell heat-${intensity}`;
+                    td.textContent = count || '-';
+                    
+                    tr.appendChild(td);
+                });
+                
+                tbody.appendChild(tr);
+            });
+        }
     </script>
 </body>
 </html>
-
