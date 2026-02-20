@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -211,6 +212,89 @@
             text-decoration: underline;
         }
         
+        .charts-section {
+            margin-bottom: 30px;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .chart-container {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid #2d2d2d;
+        }
+        
+        .chart-container h3 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        .chart-canvas {
+            position: relative;
+            height: 300px;
+        }
+        
+        .heatmap-grid {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        
+        .heatmap-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.85em;
+        }
+        
+        .heatmap-table th {
+            background: #2d2d2d;
+            color: #999;
+            padding: 10px;
+            text-align: left;
+            font-weight: 500;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+        }
+        
+        .heatmap-table td {
+            padding: 8px 12px;
+            text-align: center;
+            border: 1px solid #2d2d2d;
+        }
+        
+        .heatmap-table tr:hover {
+            background: #1a1a1a;
+        }
+        
+        .heatmap-table th:first-child,
+        .heatmap-table td:first-child {
+            position: sticky;
+            left: 0;
+            background: #1a1a1a;
+            text-align: left;
+            font-weight: 500;
+        }
+        
+        .heat-cell {
+            border-radius: 4px;
+            padding: 5px;
+            min-width: 30px;
+        }
+        
+        .heat-0 { background: #0d1117; color: #666; }
+        .heat-1 { background: #0e4429; color: #bbb; }
+        .heat-2 { background: #006d32; color: #fff; }
+        .heat-3 { background: #26a641; color: #fff; }
+        .heat-4 { background: #39d353; color: #000; }
+        
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
@@ -256,10 +340,10 @@
         <div class="instructions">
             <h3>How to Explore the Map</h3>
             <ul>
-                <li>Clusters show the number of photos in each area</li>
+                <li>Each cluster shows the number of photos in an area.</li>
                 <li>Click a cluster to zoom in and reveal individual pins</li>
                 <li>Click individual pins to see photo details and images</li>
-                <li>Zoom out to see pins automatically group back into clusters</li>
+                <li>Zoom out of the map to see pins automatically group back into clusters</li>
             </ul>
         </div>
 
@@ -267,23 +351,63 @@
             <div id="map"></div>
         </div>
 
+        <div class="charts-section">
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>Photography Timeline</h3>
+                    <div class="chart-canvas">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Neighborhood Distribution</h3>
+                    <div class="chart-canvas">
+                        <canvas id="neighborhoodChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Film Stock Comparison</h3>
+                    <div class="chart-canvas">
+                        <canvas id="filmStockChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Month × Neighborhood Heatmap</h3>
+                    <div class="heatmap-grid">
+                        <table class="heatmap-table" id="monthNeighborhoodHeatmap">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="section">
             <h2>About This Project</h2>
-            <p>This interactive map visualizes my film photography practice across New York City. Each pin represents a photograph, with data including location, film stock, camera used, and shooting date.</p>
-            <p>The project demonstrates data collection, geospatial analysis, and interactive visualization techniques—combining my passion for analog photography with data analytics skills.</p>
-            <p><strong>Technical Details:</strong> Built with Leaflet.js for mapping, Marker Cluster for grouping, and CSV data processing. The map updates dynamically as new photographs are added to the dataset.</p>
+            <p>I wanted to map out my photographic journey in NYC, so this will be a continuous project I will update as I take more photos!</p>
+            <p>Each pin represents the exact location at which I took a photo. Clicking a pin will allow you to view a few details about the picture, like what camera was used or when it was taken.</p>
+            <p>I wanted to combine my data analysis knowledge with my passion for film photography and I thought this would be a perfect joining of the two ideas.</p>
+            <p>My eventual goal with this project is to trace my photographic journey across NYC, capturing candid moments in time to showcase the city that I'm so proud to call my home :)</p>
         </div>
 
         <div class="section">
             <h2>Data Methodology</h2>
-            <p><strong>Data Collection:</strong> Each photograph's metadata was manually cataloged, including precise GPS coordinates obtained through landmark identification and Google Maps verification.</p>
-            <p><strong>Coordinate Strategy:</strong> The map uses dual coordinate systems—neighborhood-level clustering coordinates and precise pin-level coordinates—to balance visual clarity with geographic accuracy.</p>
-            <p><strong>Ongoing Project:</strong> This is a living dataset that grows with each new roll of film. The visualization automatically updates as new data is added to the source spreadsheet.</p>
+            <p><strong>Technical Details:</strong> Built with Leaflet.js for mapping, Marker Cluster for grouping, and CSV data processing. The map updates dynamically as new photographs are added to the dataset.</p>
+            <p><strong>Data Collection:</strong> Each photograph's metadata was manually cataloged, including precise GPS coordinates obtained through landmark identification and Google Street View verification.</p>
+            <p><strong>Coordinate Strategy:</strong> The map uses neighborhood-level clustering coordinates as well as precise pin-level coordinates to balance visual clarity with geographic accuracy.</p>
         </div>
     </div>
 
     <div class="footer">
-        <p>© 2026 Arnab Sarkar | <a href="arnab.sarkar@baruchmail.cuny.edu">Contact</a> | <a href="https://github.com/a-sarkar1/">GitHub</a> | <a href="https://www.linkedin.com/in/a-sarkar1/">LinkedIn</a></p>
+        <p>© 2026 Arnab Sarkar | <a href="mailto:arnab.sarkar@baruchmail.cuny.edu">Contact</a> | <a href="https://github.com/a-sarkar1">GitHub</a> | <a href="https://www.linkedin.com/in/a-sarkar1/">LinkedIn</a></p>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
@@ -319,16 +443,16 @@
                 const neighborhoods = new Set(data.filter(d => d.Location_Neighborhood).map(d => d.Location_Neighborhood));
                 const filmStocks = new Set(data.filter(d => d.Film_Stock).map(d => d.Film_Stock));
                 
-                document.getElementById('total-photos').textContent = data.filter(d => d.Pin_Lat && d.Pin_Lng).length;
+                document.getElementById('total-photos').textContent = data.filter(d => d.Pin_Lat && d.Pin_Long).length;
                 document.getElementById('neighborhoods').textContent = neighborhoods.size;
                 document.getElementById('film-stocks').textContent = filmStocks.size;
 
                 // Add markers for each photo
                 data.forEach(photo => {
-                    if (!photo.Pin_Lat || !photo.Pin_Lng) return;
+                    if (!photo.Pin_Lat || !photo.Pin_Long) return;
                     
                     const lat = parseFloat(photo.Pin_Lat);
-                    const lng = parseFloat(photo.Pin_Lng);
+                    const lng = parseFloat(photo.Pin_Long);
                     
                     if (isNaN(lat) || isNaN(lng)) return;
                     
@@ -337,10 +461,13 @@
                     // Create popup content
                     const popupContent = `
                         <div class="popup-content">
-                            <img src="photos/${photo.Filename}" 
-                                 alt="${photo.Filename}"
-                                 onerror="this.src='https://via.placeholder.com/250x200/2d2d2d/ffffff?text=Image+Not+Found'">
-                            <h3>${photo.Filename}</h3>
+                            <a href="photos/${photo.Filename}" target="_blank">
+                                <img src="photos/${photo.Filename}" 
+                                     alt="${photo.Filename}"
+                                     onerror="this.src='https://via.placeholder.com/250x200/2d2d2d/ffffff?text=Image+Not+Found'"
+                                     style="cursor: pointer;">
+                            </a>
+                            <h3>${photo.Pin_Lat}, ${photo.Pin_Long}</h3>
                             <div class="info-grid">
                                 ${photo.Location_Neighborhood ? `<div class="info-row"><strong>Location:</strong><span>${photo.Location_Neighborhood}</span></div>` : ''}
                                 ${photo.Film_Stock ? `<div class="info-row"><strong>Film:</strong><span>${photo.Film_Stock}</span></div>` : ''}
@@ -361,12 +488,251 @@
 
                 // Add markers to map
                 map.addLayer(markers);
+                
+                // Generate charts after data is loaded
+                generateCharts(data);
             },
             error: function(error) {
                 console.error('Error loading CSV:', error);
                 alert('Error loading photo data. Make sure photo-data.csv is in the same folder as index.html');
             }
         });
+        
+        // Function to generate all charts
+        function generateCharts(data) {
+            const validData = data.filter(d => d.Date_Shot && d.Pin_Lat && d.Pin_Long);
+            
+            // 1. Photography Timeline
+            generateTimelineChart(validData);
+            
+            // 2. Neighborhood Distribution
+            generateNeighborhoodChart(validData);
+            
+            // 3. Film Stock Comparison
+            generateFilmStockChart(validData);
+            
+            // 4. Month × Neighborhood Heatmap
+            generateMonthNeighborhoodHeatmap(validData);
+        }
+        
+        // 1. Timeline Chart
+        function generateTimelineChart(data) {
+            // Parse dates and count by month
+            const monthlyCounts = {};
+            
+            data.forEach(photo => {
+                const date = new Date(photo.Date_Shot);
+                if (!isNaN(date)) {
+                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    monthlyCounts[monthKey] = (monthlyCounts[monthKey] || 0) + 1;
+                }
+            });
+            
+            // Sort by date
+            const sortedMonths = Object.keys(monthlyCounts).sort();
+            const labels = sortedMonths.map(m => {
+                const [year, month] = m.split('-');
+                return new Date(year, month - 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            });
+            const values = sortedMonths.map(m => monthlyCounts[m]);
+            
+            new Chart(document.getElementById('timelineChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Photos Taken',
+                        data: values,
+                        borderColor: '#4a9eff',
+                        backgroundColor: 'rgba(74, 158, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#999', stepSize: 1 },
+                            grid: { color: '#2d2d2d' }
+                        },
+                        x: {
+                            ticks: { color: '#999' },
+                            grid: { color: '#2d2d2d' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 2. Neighborhood Chart
+        function generateNeighborhoodChart(data) {
+            const neighborhoodCounts = {};
+            
+            data.forEach(photo => {
+                if (photo.Location_Neighborhood) {
+                    neighborhoodCounts[photo.Location_Neighborhood] = 
+                        (neighborhoodCounts[photo.Location_Neighborhood] || 0) + 1;
+                }
+            });
+            
+            // Sort by count
+            const sorted = Object.entries(neighborhoodCounts)
+                .sort((a, b) => b[1] - a[1]);
+            
+            const labels = sorted.map(([neighborhood]) => neighborhood);
+            const values = sorted.map(([, count]) => count);
+            
+            new Chart(document.getElementById('neighborhoodChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Photos',
+                        data: values,
+                        backgroundColor: '#4a9eff',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { color: '#999', stepSize: 1 },
+                            grid: { color: '#2d2d2d' }
+                        },
+                        y: {
+                            ticks: { color: '#999' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 3. Film Stock Chart
+        function generateFilmStockChart(data) {
+            const filmStockCounts = {};
+            
+            data.forEach(photo => {
+                if (photo.Film_Stock) {
+                    filmStockCounts[photo.Film_Stock] = 
+                        (filmStockCounts[photo.Film_Stock] || 0) + 1;
+                }
+            });
+            
+            const labels = Object.keys(filmStockCounts);
+            const values = Object.values(filmStockCounts);
+            
+            // Generate colors
+            const colors = ['#4a9eff', '#ff6b6b', '#51cf66', '#ffd43b', '#845ef7'];
+            
+            new Chart(document.getElementById('filmStockChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#1a1a1a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#999', padding: 15 }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 4. Month × Neighborhood Heatmap
+        function generateMonthNeighborhoodHeatmap(data) {
+            const heatmapData = {};
+            const neighborhoods = new Set();
+            
+            // Build the data structure
+            data.forEach(photo => {
+                const date = new Date(photo.Date_Shot);
+                if (!isNaN(date) && photo.Location_Neighborhood) {
+                    const monthKey = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                    const neighborhood = photo.Location_Neighborhood;
+                    
+                    neighborhoods.add(neighborhood);
+                    
+                    if (!heatmapData[monthKey]) {
+                        heatmapData[monthKey] = {};
+                    }
+                    
+                    heatmapData[monthKey][neighborhood] = (heatmapData[monthKey][neighborhood] || 0) + 1;
+                }
+            });
+            
+            const sortedNeighborhoods = Array.from(neighborhoods).sort();
+            const months = Object.keys(heatmapData).sort((a, b) => {
+                return new Date(a) - new Date(b);
+            });
+            
+            // Find max count for scaling
+            let maxCount = 0;
+            Object.values(heatmapData).forEach(monthData => {
+                Object.values(monthData).forEach(count => {
+                    maxCount = Math.max(maxCount, count);
+                });
+            });
+            
+            // Build the table
+            const table = document.getElementById('monthNeighborhoodHeatmap');
+            const thead = table.querySelector('thead tr');
+            const tbody = table.querySelector('tbody');
+            
+            // Add neighborhood headers
+            sortedNeighborhoods.forEach(neighborhood => {
+                const th = document.createElement('th');
+                th.textContent = neighborhood;
+                thead.appendChild(th);
+            });
+            
+            // Add data rows
+            months.forEach(month => {
+                const tr = document.createElement('tr');
+                
+                // Month label
+                const monthTd = document.createElement('td');
+                monthTd.textContent = month;
+                tr.appendChild(monthTd);
+                
+                // Neighborhood data
+                sortedNeighborhoods.forEach(neighborhood => {
+                    const count = heatmapData[month][neighborhood] || 0;
+                    const td = document.createElement('td');
+                    
+                    const intensity = Math.ceil((count / maxCount) * 4);
+                    td.className = `heat-cell heat-${intensity}`;
+                    td.textContent = count || '-';
+                    
+                    tr.appendChild(td);
+                });
+                
+                tbody.appendChild(tr);
+            });
+        }
     </script>
 </body>
 </html>
