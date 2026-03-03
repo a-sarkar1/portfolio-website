@@ -613,7 +613,11 @@
                             grid: { color: '#2d2d2d' }
                         },
                         y: {
-                            ticks: { color: '#999' },
+                            ticks: { color: '#999',
+                                     autoSkip: false,
+                                     maxRotation: 0,
+                                     minRotation: 0
+                                   },
                             grid: { display: false }
                         }
                     }
@@ -651,7 +655,8 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: true,
+                    aspectRation: 1.5,
                     plugins: {
                         legend: {
                             position: 'bottom',
@@ -736,3 +741,4 @@
     </script>
 </body>
 </html>
+
