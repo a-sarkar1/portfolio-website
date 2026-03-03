@@ -22,6 +22,50 @@
             line-height: 1.6;
         }
         
+        .nav {
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        
+        .nav-brand {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #ffffff;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: #bbb;
+            text-decoration: none;
+            font-size: 0.95em;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #4a9eff;
+        }
+        
         .header {
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
             padding: 60px 20px;
@@ -296,6 +340,10 @@
         .heat-4 { background: #39d353; color: #000; }
         
         @media (max-width: 768px) {
+            .nav-links {
+                gap: 15px;
+            }
+            
             .header h1 {
                 font-size: 1.8em;
             }
@@ -315,6 +363,16 @@
     </style>
 </head>
 <body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">Arnab Sarkar</a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
     <div class="header">
         <h1>Mapping NYC Streets Through Film Photography</h1>
         <div class="byline">by Arnab Sarkar</div>
@@ -613,11 +671,12 @@
                             grid: { color: '#2d2d2d' }
                         },
                         y: {
-                            ticks: { color: '#999',
-                                     autoSkip: false,
-                                     maxRotation: 0,
-                                     minRotation: 0
-                                   },
+                            ticks: { 
+                                color: '#999',
+                                autoSkip: false,
+                                maxRotation: 0,
+                                minRotation: 0
+                            },
                             grid: { display: false }
                         }
                     }
@@ -639,8 +698,8 @@
             const labels = Object.keys(filmStockCounts);
             const values = Object.values(filmStockCounts);
             
-            // Generate colors
-            const colors = ['#4a9eff', '#ff6b6b', '#51cf66', '#ffd43b', '#845ef7'];
+            // Generate more distinct colors
+            const colors = ['#4a9eff', '#ff6b6b', '#51cf66', '#ffd43b', '#845ef7', '#ff9500', '#00d4aa', '#ff2d55'];
             
             new Chart(document.getElementById('filmStockChart'), {
                 type: 'doughnut',
@@ -655,8 +714,10 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: 1.5,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: 20
+                    },
                     plugins: {
                         legend: {
                             position: 'bottom',
@@ -741,5 +802,3 @@
     </script>
 </body>
 </html>
-
-
