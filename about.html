@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | Arnab Sarkar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        
+        .nav {
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        
+        .nav-brand {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #ffffff;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: #bbb;
+            text-decoration: none;
+            font-size: 0.95em;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #4a9eff;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            padding: 80px 20px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            color: #bbb;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .profile-photo {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 30px auto 0;
+            display: block;
+            border: 4px solid #4a9eff;
+            object-fit: cover;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        .section p {
+            color: #bbb;
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .skill-category {
+            background: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #2d2d2d;
+        }
+        
+        .skill-category h3 {
+            color: #4a9eff;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        
+        .skill-category ul {
+            list-style: none;
+            color: #bbb;
+        }
+        
+        .skill-category li {
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .skill-category li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #4a9eff;
+            font-weight: bold;
+        }
+        
+        .contact-links {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .contact-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #1a1a1a;
+            border: 1px solid #4a9eff;
+            border-radius: 6px;
+            color: #4a9eff;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .contact-link:hover {
+            background: #4a9eff;
+            color: #ffffff;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 0.9em;
+            border-top: 1px solid #333;
+            margin-top: 60px;
+        }
+        
+        .footer a {
+            color: #4a9eff;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">Arnab Sarkar</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html" class="active">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="header">
+        <h1>About Me</h1>
+        <p>Data Analyst | Film Photographer | Urban Explorer</p>
+        <img src="headshot.jpg" alt="Arnab Sarkar" class="profile-photo">
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h2>Who I Am</h2>
+            <p>Hi I'm Arnab, a data analyst who hopes to make the world a better place through my work.</p>
+            <p>For the past four years, I've worked at the intersection of data and public good. Whether it's analyzing crash data to make NYC streets safer, helping thousands of taxpayers navigate complex systems, or improving living conditions for marginalized families, I use data to solve problems that matter deeply to me.</p>
+            <p>I'm drawn to messy, real-world challenges where data meets regular human beings, like making someone's commute safer, their rent more affordable, or their interactions with government less frustrating.</p>
+        </div>
+
+        <div class="section">
+            <h2>What I've Done</h2>
+            
+            <p style="color: #4a9eff; font-size: 1.2em; margin-top: 30px; margin-bottom: 15px; font-weight: 600;">Making Streets Safer</p>
+            <p>At the NYC Department of Transportation, I worked on Vision Zero: the city's commitment to eliminate traffic deaths. I analyzed crash data across 300+ intersections and multiple boroughs, identifying the neighborhoods where pedestrians were most at risk. The recommendations I developed contributed to a 12% reduction in pedestrian fatalities in targeted areas.</p>
+            <p>I also applied natural language processing to analyze 10,000+ public comments about the Brooklyn Bridge Park, extracting themes and sentiment to help stakeholders understand what the community actually wanted.</p>
+	    <p>The experience I gained in this role culminated into getting the privilege of lecturing at the City College of New York's Transportation Systems program, sharing what I'd learned about using data to improve urban mobility.</p>
+
+            <p style="color: #4a9eff; font-size: 1.2em; margin-top: 30px; margin-bottom: 15px; font-weight: 600;">Simplifying Complexity</p>
+            <p>At Fast Enterprises, I worked closely with sensitive taxpayer data for the Louisville Metro Revenue Commission. I led over 200 data migrations, ensuring millions of financial records moved accurately between systems. More importantly however, I studied how people actually used the tax filing website: where they got stuck, what confused them, and where they gave up.</p>
+            <p>I expanded accessibility features for users with disabilities, making the system work for everyone. This resulted in a 35% increase in successful submissions among users who relied on those features, and faster completion times across the board.</p>
+
+            <p style="color: #4a9eff; font-size: 1.2em; margin-top: 30px; margin-bottom: 15px; font-weight: 600;">Fighting for Fair Housing</p>
+            <p>My first real taste of data for good came at Woodside on the Move, where I worked with tenants living in poor conditions. I collected data, built visualizations, and presented evidence to landlords showing exactly what needed to be fixed. The impact was tangible: improved living conditions for over 100 families and an average rent reduction of $189 per tenant.</p>
+            <p>This experience taught me that data isn't just about finding patterns. It's about giving people a voice.</p>
+        </div>
+
+        <div class="section">
+            <h2>How I Work</h2>
+            <p>I specialize in ETL pipelines, dashboard development, and turning messy datasets into insights that non-technical people can actually use. I'm fluent in Python, SQL, Power BI, and Tableau. I've built machine learning models for sentiment analysis, optimized databases for better performance, and created visualizations that helped city officials make better decisions.</p>
+        </div>
+
+        <div class="section">
+            <h2>Beyond the Data</h2>
+            <p>When I'm not analyzing datasets, I'm crawling around NYC with a film camera. This website and the mapping project you saw on the home page is where my two worlds intersect. It's data visualization meets street photography, a way of documenting the city I love using the tools I know best.</p>
+            <p>This city inspires me every day in ways I can't properly describe into words. Every neighborhood has a unique story, I just chose to tell mine one photograph at a time.</p>
+        </div>
+
+        <div class="section">
+            <h2>Let's Connect</h2>
+            <p>I'm always interested in projects that use data to create positive impact. Whether you're working on urban policy, public health, accessibility, or you just wanna be friends, I'd love to hear from you!</p>
+            <div class="contact-links">
+                <a href="mailto:arnab.sarkar@baruchmail.cuny.edu" class="contact-link">Email Me</a>
+                <a href="https://www.linkedin.com/in/a-sarkar1/" target="_blank" class="contact-link">LinkedIn</a>
+                <a href="https://github.com/a-sarkar1" target="_blank" class="contact-link">GitHub</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 Arnab Sarkar | Built with passion in NYC</p>
+    </div>
+</body>
+</html>
